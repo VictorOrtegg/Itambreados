@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
-    "@react-navigation/bottom-tabs": "^7.16.1",
+    "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
-    "@react-navigation/native": "^7.2.4",
-    "@react-navigation/native-stack": "^7.15.1",
+    "@react-navigation/native": "^7.1.33",
+    "@react-navigation/native-stack": "^7.14.5",
     "@supabase/supabase-js": "^2.106.0",
     "expo": "~55.0.25",
     "expo-checkbox": "~55.0.4",
