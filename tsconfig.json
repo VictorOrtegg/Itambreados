@@ -1,0 +1,26 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "types": [
+      "jest"
+    ],
+    "lib": [
+      "dom",
+      "esnext"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "App.tsx",
+    "index.js",
+    "index.web.tsx"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/Pods",
+    "Itambreados",
+    "ItambreadosExp",
+    "ITAmbriadosExpo"
+  ]
+}

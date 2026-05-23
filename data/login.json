@@ -1,0 +1,24 @@
+{
+    "app": {
+        "nombre": "ITAmbriados",
+        "version": "1.0"
+    },
+    "login": {
+        "titulo": "Inicio de Sesión",
+        "campos": [{
+                "id": 1,
+                "nombre": "correo",
+                "placeholder": "Ingresa tu correo"
+            },
+            {
+                "id": 2,
+                "nombre": "contrasena",
+                "placeholder": "Ingresa tu contraseña"
+            }
+        ],
+        "boton": {
+            "texto": "Entrar",
+            "color": "#1E3A8A"
+        }
+    }
+}
