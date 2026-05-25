@@ -1,165 +1,316 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useRef, useState } from 'react';
+import {
+  Animated,
+  Dimensions,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+
+const C = {
+  bg:      '#000000',
+  teal:    '#0D9AA3',
+  tealDim: '#0D9AA320',
+  white:   '#FFFFFF',
+  gray:    '#E3E3E3',
+  red:     '#FD4E4E',
+  card:    '#111111',
+  border:  '#1E1E1E',
+  sub:     '#555555',
+};
 
 const ONBOARDING_DATA = [
   {
-    title: 'Todo dentro de la misma app',
-    description: 'Obten todos los productos dentro de la misma aplicación, busca en el catálogo.',
+    icon:        'storefront-outline',
+    accent:      C.teal,
+    title:       'Todo dentro de\nla misma app',
+    description: 'Obtén todos los productos dentro de la misma aplicación, busca en el catálogo.',
   },
   {
-    title: 'Todos tus favoritos',
+    icon:        'heart-outline',
+    accent:      '#FD4E4E',
+    title:       'Todos tus\nfavoritos',
     description: 'Todos tus productos favoritos dentro de la app, a un solo click de distancia.',
   },
   {
-    title: 'Busca a tu vendedor favorito',
+    icon:        'people-outline',
+    accent:      C.teal,
+    title:       'Busca a tu\nvendedor favorito',
     description: 'Todos los pequeños vendedores estarán cerca de ti.',
   },
   {
-    title: 'Entregas súper sencillas',
-    description: 'Solo selecciona un producto, acuerda con el vendedor y listo!',
-  }
+    icon:        'bag-check-outline',
+    accent:      '#0D9AA3',
+    title:       'Entregas súper\nsencillas',
+    description: 'Solo selecciona un producto, acuerda con el vendedor y ¡listo!',
+  },
 ];
 
+// ── Slide illustration ────────────────────────────────────
+function SlideIllustration({ item, animValue }) {
+  const scale = animValue.interpolate({
+    inputRange: [0, 1], outputRange: [0.7, 1],
+  });
+  const opacity = animValue.interpolate({
+    inputRange: [0, 1], outputRange: [0, 1],
+  });
+
+  return (
+    <Animated.View style={[styles.illustrationWrap, { opacity, transform: [{ scale }] }]}>
+      {/* Anillos decorativos */}
+      <View style={[styles.ring, styles.ring3, { borderColor: item.accent + '18' }]} />
+      <View style={[styles.ring, styles.ring2, { borderColor: item.accent + '28' }]} />
+      <View style={[styles.ring, styles.ring1, { borderColor: item.accent + '40' }]} />
+      {/* Círculo central */}
+      <View style={[styles.iconCircle, { backgroundColor: item.accent + '18', borderColor: item.accent + '40' }]}>
+        <Ionicons name={item.icon} size={64} color={item.accent} />
+      </View>
+    </Animated.View>
+  );
+}
+
+// ── Dot de paginación ─────────────────────────────────────
+function PaginationDot({ active, color }) {
+  const w = useRef(new Animated.Value(active ? 1 : 0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(w, { toValue: active ? 1 : 0, duration: 250, useNativeDriver: false }).start();
+  }, [active]);
+
+  const dotWidth = w.interpolate({ inputRange: [0, 1], outputRange: [8, 24] });
+  const bg = w.interpolate({ inputRange: [0, 1], outputRange: [C.border, color] });
+
+  return <Animated.View style={[styles.dot, { width: dotWidth, backgroundColor: bg }]} />;
+}
+
+// ── Pantalla ──────────────────────────────────────────────
 export default function OnboardingScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const anim = useRef(new Animated.Value(1)).current;
+
+  const goTo = (nextIndex) => {
+    Animated.timing(anim, { toValue: 0, duration: 150, useNativeDriver: true }).start(() => {
+      setCurrentIndex(nextIndex);
+      Animated.timing(anim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+    });
+  };
 
   const handleNext = () => {
     if (currentIndex < ONBOARDING_DATA.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      goTo(currentIndex + 1);
     } else {
-      navigation.replace('Login'); // Move to Login
+      navigation.replace('Login');
     }
   };
 
-  const handleSkip = () => {
-    navigation.replace('Login');
-  };
+  const handleSkip = () => navigation.replace('Login');
 
-  const currentItem = ONBOARDING_DATA[currentIndex];
+  const item     = ONBOARDING_DATA[currentIndex];
+  const isLast   = currentIndex === ONBOARDING_DATA.length - 1;
+
+  const textOpacity = anim;
+  const textY = anim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.topDecoration} />
-      
-      <View style={styles.content}>
-        {/* Placeholder for the central image block */}
-        <View style={styles.imagePlaceholder} />
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" backgroundColor={C.bg} />
 
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>{currentItem.title}</Text>
-          <Text style={styles.description}>{currentItem.description}</Text>
+      {/* Orb de fondo */}
+      <View style={[styles.bgOrb, { backgroundColor: item.accent }]} />
+
+      {/* Skip */}
+      <View style={styles.topRow}>
+        <View style={styles.logoRow}>
+          <Ionicons name="storefront" size={18} color={C.teal} />
+          <Text style={styles.logoText}>itambreados</Text>
         </View>
-
-        {/* Pagination Dots */}
-        <View style={styles.paginationContainer}>
-          {ONBOARDING_DATA.map((_, index) => (
-            <View 
-              key={index} 
-              style={[
-                styles.dot, 
-                currentIndex === index && styles.activeDot
-              ]} 
-            />
-          ))}
-        </View>
-
-        {/* Action Buttons */}
-        <TouchableOpacity style={styles.primaryButton} onPress={handleNext}>
-          <Text style={styles.primaryButtonText}>
-            {currentIndex === ONBOARDING_DATA.length - 1 ? 'EMPEZAR' : 'SIGUIENTE'}
-          </Text>
+        <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
+          <Text style={styles.skipText}>Saltar</Text>
+          <Ionicons name="chevron-forward" size={14} color={C.sub} />
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-          <Text style={styles.skipButtonText}>Saltar</Text>
+      </View>
+
+      {/* Ilustración */}
+      <SlideIllustration item={item} animValue={anim} />
+
+      {/* Texto */}
+      <Animated.View style={[styles.textBlock, { opacity: textOpacity, transform: [{ translateY: textY }] }]}>
+        <Text style={[styles.title, { }]}>{item.title}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+      </Animated.View>
+
+      {/* Paginación */}
+      <View style={styles.pagination}>
+        {ONBOARDING_DATA.map((_, i) => (
+          <PaginationDot key={i} active={currentIndex === i} color={item.accent} />
+        ))}
+      </View>
+
+      {/* Botones */}
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={[styles.nextBtn, { backgroundColor: item.accent }]}
+          onPress={handleNext}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.nextBtnText}>{isLast ? 'EMPEZAR' : 'SIGUIENTE'}</Text>
+          <Ionicons name={isLast ? 'rocket-outline' : 'arrow-forward'} size={18} color={C.white} />
         </TouchableOpacity>
+
+        {!isLast && (
+          <TouchableOpacity onPress={handleSkip} style={styles.skipBottomBtn}>
+            <Text style={styles.skipBottomText}>Saltar introducción</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
 }
 
+// ── Estilos ───────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  topDecoration: {
+  safe: { flex: 1, backgroundColor: C.bg, alignItems: 'center' },
+
+  bgOrb: {
     position: 'absolute',
-    top: -100,
-    left: -100,
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: '#F8FBFC',
+    width: width * 1.2,
+    height: width * 1.2,
+    borderRadius: width * 0.6,
+    top: -width * 0.75,
+    opacity: 0.05,
   },
-  content: {
-    flex: 1,
+
+  // Top
+  topRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  logoText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: C.teal,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  skipBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    backgroundColor: C.card,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  skipText: { fontSize: 12, color: C.sub, fontWeight: '500' },
+
+  // Ilustración
+  illustrationWrap: {
+    marginTop: height * 0.05,
+    marginBottom: height * 0.04,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: width * 0.72,
+    height: width * 0.72,
+  },
+  ring: {
+    position: 'absolute',
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  ring1: { width: width * 0.5,  height: width * 0.5 },
+  ring2: { width: width * 0.62, height: width * 0.62 },
+  ring3: { width: width * 0.72, height: width * 0.72 },
+  iconCircle: {
+    width: width * 0.38,
+    height: width * 0.38,
+    borderRadius: width * 0.19,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  imagePlaceholder: {
-    width: width * 0.7,
-    height: width * 0.7,
-    backgroundColor: '#95A5B6', // Slate gray from the design mockups
-    borderRadius: 8,
-    marginBottom: 40,
-  },
-  textContainer: {
+
+  // Texto
+  textBlock: {
+    width: '100%',
+    paddingHorizontal: 32,
     alignItems: 'center',
-    marginBottom: 30,
-    height: 80, // Fixed height to prevent jumping
+    minHeight: 100,
   },
   title: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: '800',
-    color: '#1E2235',
-    marginBottom: 10,
+    color: C.white,
     textAlign: 'center',
+    marginBottom: 14,
+    lineHeight: 32,
+    letterSpacing: 0.2,
   },
   description: {
     fontSize: 14,
-    color: '#6B7280',
+    color: C.sub,
     textAlign: 'center',
-    lineHeight: 20,
-    paddingHorizontal: 10,
+    lineHeight: 22,
   },
-  paginationContainer: {
+
+  // Paginación
+  pagination: {
     flexDirection: 'row',
-    marginBottom: 40,
+    gap: 6,
+    marginTop: 32,
+    marginBottom: 32,
+    alignItems: 'center',
   },
   dot: {
-    width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#D1D5DB',
-    marginHorizontal: 4,
   },
-  activeDot: {
-    backgroundColor: '#164E87',
-    width: 12,
-  },
-  primaryButton: {
-    backgroundColor: '#164E87',
+
+  // Acciones
+  actions: {
     width: '100%',
-    paddingVertical: 16,
-    borderRadius: 8,
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    gap: 12,
+  },
+  nextBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 16,
+    borderRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 10,
   },
-  primaryButtonText: {
-    color: '#FFFFFF',
+  nextBtnText: {
+    color: C.white,
     fontSize: 14,
-    fontWeight: 'bold',
-    letterSpacing: 1,
+    fontWeight: '800',
+    letterSpacing: 1.2,
   },
-  skipButton: {
+  skipBottomBtn: {
+    alignItems: 'center',
     paddingVertical: 10,
   },
-  skipButtonText: {
-    color: '#9CA3AF',
-    fontSize: 14,
-  }
+  skipBottomText: {
+    fontSize: 13,
+    color: C.sub,
+    fontWeight: '500',
+  },
 });
