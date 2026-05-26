@@ -1,11 +1,12 @@
-import { Ionicons } from '@expo/vector-icons';
-import Checkbox from 'expo-checkbox';
-import { useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import Checkbox from "expo-checkbox";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Dimensions,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -14,43 +15,48 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useAuth } from '../../context/AuthContext';
+} from "react-native";
+import { useAuth } from "../../context/AuthContext";
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get("window");
 
 const C = {
-  bg:       '#000000',
-  teal:     '#0D9AA3',
-  tealDim:  '#0D9AA318',
-  white:    '#FFFFFF',
-  gray:     '#E3E3E3',
-  red:      '#FD4E4E',
-  card:     '#111111',
-  border:   '#1E1E1E',
-  subtext:  '#666666',
-  input:    '#0D0D0D',
+  bg: "#000000",
+  teal: "#0D9AA3",
+  tealDim: "#0D9AA318",
+  white: "#FFFFFF",
+  gray: "#E3E3E3",
+  red: "#FD4E4E",
+  card: "#111111",
+  border: "#1E1E1E",
+  subtext: "#666666",
+  input: "#0D0D0D",
 };
 
 export default function LoginScreen({ navigation }) {
   const { signIn } = useAuth();
 
-  const [email, setEmail]         = useState('');
-  const [password, setPassword]   = useState('');
-  const [showPass, setShowPass]   = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading]     = useState(false);
+  const [loading, setLoading] = useState(false);
   const [focusedField, setFocused] = useState(null);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Por favor ingresa email y contraseña');
+      Alert.alert("Error", "Por favor ingresa email y contraseña");
       return;
     }
+
     setLoading(true);
     const { error } = await signIn(email, password);
     setLoading(false);
-    if (error) Alert.alert('Error de Inicio de Sesión', error.message);
+
+    if (error) {
+      Alert.alert("Error de Inicio de Sesión", error.message);
+    }
+    // ELIMINAMOS EL 'else' PORQUE APP.JS YA SE ENCARGA DE CAMBIAR LA PANTALLA
   };
 
   const inputStyle = (field) => [
@@ -61,9 +67,14 @@ export default function LoginScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* ── Encabezado ───────────────────────────────── */}
           <View style={styles.header}>
             {/* Decoración de fondo */}
@@ -80,11 +91,15 @@ export default function LoginScreen({ navigation }) {
 
           {/* ── Formulario ───────────────────────────────── */}
           <View style={styles.form}>
-
             {/* Email */}
             <Text style={styles.label}>EMAIL</Text>
-            <View style={inputStyle('email')}>
-              <Ionicons name="mail-outline" size={18} color={focusedField === 'email' ? C.teal : C.subtext} style={styles.inputIcon} />
+            <View style={inputStyle("email")}>
+              <Ionicons
+                name="mail-outline"
+                size={18}
+                color={focusedField === "email" ? C.teal : C.subtext}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={styles.inputText}
                 placeholder="brendon@gmail.com"
@@ -93,7 +108,7 @@ export default function LoginScreen({ navigation }) {
                 autoCapitalize="none"
                 value={email}
                 onChangeText={setEmail}
-                onFocus={() => setFocused('email')}
+                onFocus={() => setFocused("email")}
                 onBlur={() => setFocused(null)}
                 selectionColor={C.teal}
               />
@@ -101,8 +116,13 @@ export default function LoginScreen({ navigation }) {
 
             {/* Contraseña */}
             <Text style={[styles.label, { marginTop: 20 }]}>CONTRASEÑA</Text>
-            <View style={inputStyle('password')}>
-              <Ionicons name="lock-closed-outline" size={18} color={focusedField === 'password' ? C.teal : C.subtext} style={styles.inputIcon} />
+            <View style={inputStyle("password")}>
+              <Ionicons
+                name="lock-closed-outline"
+                size={18}
+                color={focusedField === "password" ? C.teal : C.subtext}
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={styles.inputText}
                 placeholder="••••••••"
@@ -110,12 +130,19 @@ export default function LoginScreen({ navigation }) {
                 secureTextEntry={!showPass}
                 value={password}
                 onChangeText={setPassword}
-                onFocus={() => setFocused('password')}
+                onFocus={() => setFocused("password")}
                 onBlur={() => setFocused(null)}
                 selectionColor={C.teal}
               />
-              <TouchableOpacity onPress={() => setShowPass(!showPass)} style={styles.eyeBtn}>
-                <Ionicons name={showPass ? 'eye-outline' : 'eye-off-outline'} size={18} color={C.subtext} />
+              <TouchableOpacity
+                onPress={() => setShowPass(!showPass)}
+                style={styles.eyeBtn}
+              >
+                <Ionicons
+                  name={showPass ? "eye-outline" : "eye-off-outline"}
+                  size={18}
+                  color={C.subtext}
+                />
               </TouchableOpacity>
             </View>
 
@@ -146,15 +173,14 @@ export default function LoginScreen({ navigation }) {
               disabled={loading}
               activeOpacity={0.85}
             >
-              {loading
-                ? <ActivityIndicator color={C.white} />
-                : (
-                  <View style={styles.loginBtnInner}>
-                    <Text style={styles.loginBtnText}>INICIAR SESIÓN</Text>
-                    <Ionicons name="arrow-forward" size={18} color={C.white} />
-                  </View>
-                )
-              }
+              {loading ? (
+                <ActivityIndicator color={C.white} />
+              ) : (
+                <View style={styles.loginBtnInner}>
+                  <Text style={styles.loginBtnText}>INICIAR SESIÓN</Text>
+                  <Ionicons name="arrow-forward" size={18} color={C.white} />
+                </View>
+              )}
             </TouchableOpacity>
 
             {/* Divider */}
@@ -167,11 +193,10 @@ export default function LoginScreen({ navigation }) {
             {/* Registro */}
             <View style={styles.registerRow}>
               <Text style={styles.noAccountText}>¿No tienes una cuenta? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
                 <Text style={styles.registerText}>REGÍSTRATE</Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -190,15 +215,15 @@ const styles = StyleSheet.create({
     backgroundColor: C.card,
     borderBottomLeftRadius: 36,
     borderBottomRightRadius: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
     borderBottomWidth: 1,
     borderColor: C.border,
     gap: 4,
   },
   orb1: {
-    position: 'absolute',
+    position: "absolute",
     width: 200,
     height: 200,
     borderRadius: 100,
@@ -208,7 +233,7 @@ const styles = StyleSheet.create({
     right: -40,
   },
   orb2: {
-    position: 'absolute',
+    position: "absolute",
     width: 140,
     height: 140,
     borderRadius: 70,
@@ -223,22 +248,22 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: C.tealDim,
     borderWidth: 1,
-    borderColor: C.teal + '40',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: C.teal + "40",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   appName: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
     color: C.teal,
     letterSpacing: 3,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginBottom: 6,
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '800',
+    fontWeight: "800",
     color: C.white,
   },
   headerSub: {
@@ -255,14 +280,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: "700",
     color: C.subtext,
     letterSpacing: 1.4,
     marginBottom: 8,
   },
   input: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: C.input,
     borderRadius: 14,
     borderWidth: 1,
@@ -287,27 +312,27 @@ const styles = StyleSheet.create({
 
   // Opciones
   options: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 18,
     marginBottom: 28,
   },
   rememberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   checkbox: { width: 18, height: 18, borderRadius: 5 },
   rememberText: { fontSize: 13, color: C.subtext },
-  forgotText: { fontSize: 13, color: C.teal, fontWeight: '600' },
+  forgotText: { fontSize: 13, color: C.teal, fontWeight: "600" },
 
   // Botón
   loginBtn: {
     backgroundColor: C.teal,
     paddingVertical: 16,
     borderRadius: 14,
-    alignItems: 'center',
+    alignItems: "center",
     shadowColor: C.teal,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
@@ -315,33 +340,38 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   loginBtnInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   loginBtnText: {
     color: C.white,
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.2,
   },
 
   // Divider
   divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 28,
     gap: 12,
   },
   dividerLine: { flex: 1, height: 1, backgroundColor: C.border },
-  dividerText: { fontSize: 12, color: C.subtext, fontWeight: '500' },
+  dividerText: { fontSize: 12, color: C.subtext, fontWeight: "500" },
 
   // Registro
   registerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   noAccountText: { color: C.subtext, fontSize: 14 },
-  registerText: { color: C.teal, fontSize: 14, fontWeight: '800', letterSpacing: 0.5 },
+  registerText: {
+    color: C.teal,
+    fontSize: 14,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
 });
