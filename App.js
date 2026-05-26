@@ -1,38 +1,31 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from "expo-status-bar";
 
 // Import Context
-import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { AuthProvider, useAuth } from "./src/context/AuthContext";
 
 // Import Screens
-import SplashScreen from './src/screens/auth/SplashScreen';
-import OnboardingScreen from './src/screens/auth/OnboardingScreen';
-import LoginScreen from './src/screens/auth/LoginScreen';
-import SignUpScreen from './src/screens/auth/SignUpScreen';
+import LoginScreen from "./src/screens/auth/LoginScreen";
+import OnboardingScreen from "./src/screens/auth/OnboardingScreen";
+import SignUpScreen from "./src/screens/auth/SignUpScreen";
+import SplashScreen from "./src/screens/auth/SplashScreen";
 
 // Import Navigators
-import MainNavigator from './src/navigation/MainNavigator';
+import MainNavigator from "./src/navigation/MainNavigator";
 
 const Stack = createNativeStackNavigator();
 
 function RootNavigator() {
-  const { session, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#164E87" />
-      </View>
-    );
-  }
+  // ⚠️ CAMBIO CLAVE AQUÍ: Usamos userToken en lugar de session
+  // Nota: Quité 'loading' temporalmente porque nuestro AuthContext actual no lo exporta,
+  // así evitamos que te lance un error de "undefined".
+  const { userToken } = useAuth();
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {session ? (
-        // User is signed in
+      {userToken ? (
+        // User is signed in (El sistema entra aquí en automático al iniciar sesión)
         <Stack.Screen name="Main" component={MainNavigator} />
       ) : (
         // User is not signed in

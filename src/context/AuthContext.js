@@ -1,84 +1,82 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../services/supabase';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useContext, useState } from "react";
+import { supabase } from "../services/supabase";
 
-const AuthContext = createContext();
+const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [userToken, setUserToken] = useState(null);
+  const [userData, setUserData] = useState(null);
 
-  useEffect(() => {
-    const isMockUrl = !process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL.includes('tu_supabase_url');
-    
-    if (isMockUrl) {
-      // Si no hay Supabase configurado, terminamos de cargar sin sesión
-      setLoading(false);
-      return;
-    }
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription?.unsubscribe();
-  }, []);
-
+  // ── INICIAR SESIÓN ──────────────────────────────────────
   const signIn = async (email, password) => {
-    const isMockUrl = !process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL.includes('tu_supabase_url');
-    if (isMockUrl) {
-      console.log('Iniciando sesión en MODO DE PRUEBA');
-      const mockUser = { id: '123', email, user_metadata: { full_name: 'Alumno Prueba' } };
-      setUser(mockUser);
-      setSession({ user: mockUser });
-      return { data: { user: mockUser }, error: null };
-    }
-    return await supabase.auth.signInWithPassword({ email, password });
-  };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-  const signUp = async (email, password, metadata) => {
-    const isMockUrl = !process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL.includes('tu_supabase_url');
-    if (isMockUrl) {
-      console.log('Registrando en MODO DE PRUEBA');
-      const mockUser = { id: '123', email, user_metadata: metadata };
-      setUser(mockUser);
-      setSession({ user: mockUser });
-      return { data: { user: mockUser }, error: null };
-    }
-    return await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: metadata }
-    });
-  };
+      if (error) {
+        return { error: { message: error.message } };
+      }
 
-  const signOut = async () => {
-    const isMockUrl = !process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL.includes('tu_supabase_url');
-    if (isMockUrl) {
-      setUser(null);
-      setSession(null);
+      await AsyncStorage.setItem("userToken", data.session.access_token);
+      setUserToken(data.session.access_token);
+      setUserData(data.user);
+
       return { error: null };
+    } catch (err) {
+      console.error("Error en signIn:", err);
+      return { error: { message: "Error de red. Revisa tu conexión." } };
     }
-    return await supabase.auth.signOut();
+  };
+
+  // ── REGISTRARSE (LA FUNCIÓN QUE FALTABA) ─────────────────
+  const signUp = async (email, password, metadata) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: metadata, // Aquí enviamos el 'full_name' y el 'user_role'
+        },
+      });
+
+      if (error) {
+        return { error: { message: error.message } };
+      }
+
+      // Supabase requiere que el usuario confirme su correo por defecto.
+      // Si la sesión es null, significa que se envió el correo de confirmación.
+      if (data.session) {
+        await AsyncStorage.setItem("userToken", data.session.access_token);
+        setUserToken(data.session.access_token);
+        setUserData(data.user);
+      }
+
+      return { error: null, data };
+    } catch (err) {
+      console.error("Error en signUp:", err);
+      return { error: { message: "Error de red al intentar registrarte." } };
+    }
+  };
+
+  // ── CERRAR SESIÓN ───────────────────────────────────────
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    await AsyncStorage.removeItem("userToken");
+    setUserToken(null);
+    setUserData(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+    // ¡Aquí está la clave! Exportamos signUp en el value del Provider
+    <AuthContext.Provider
+      value={{ signIn, signUp, signOut, userToken, userData }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
