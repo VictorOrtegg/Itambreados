@@ -1,27 +1,57 @@
-import { Ionicons } from '@expo/vector-icons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useEffect, useRef } from 'react';
-import { Animated, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import HomeScreen from '../screens/main/HomeScreen';
-import SearchScreen from '../screens/main/SearchScreen';
+import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useEffect, useRef } from "react";
+import {
+  Animated,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import CategoriesScreen from "../screens/main/CategoriesScreen";
+import HomeScreen from "../screens/main/HomeScreen";
+import OrdersScreen from "../screens/main/OrderScreen";
+import ProfileScreen from "../screens/main/ProfileScreen";
+import SearchScreen from "../screens/main/SearchScreen";
 
 const Tab = createBottomTabNavigator();
 
 const C = {
-  bg:       '#000000',
-  teal:     '#0D9AA3',
-  white:    '#FFFFFF',
-  island:   '#111111',
-  border:   '#242424',
-  inactive: '#444444',
+  bg: "#000000",
+  teal: "#0D9AA3",
+  white: "#FFFFFF",
+  island: "#111111",
+  border: "#242424",
+  inactive: "#444444",
 };
 
 const TABS = [
-  { name: 'Home',    label: 'Inicio',   icon: 'home',        iconOutline: 'home-outline' },
-  { name: 'Search',  label: 'Buscar',   icon: 'search',      iconOutline: 'search-outline' },
-  { name: 'Chats',   label: 'Chats',    icon: 'chatbubbles', iconOutline: 'chatbubbles-outline' },
-  { name: 'Orders',  label: 'Pedidos',  icon: 'bag-handle',  iconOutline: 'bag-handle-outline' },
-  { name: 'Profile', label: 'Perfil',   icon: 'person',      iconOutline: 'person-outline' },
+  { name: "Home", label: "Inicio", icon: "home", iconOutline: "home-outline" },
+  {
+    name: "Search",
+    label: "Buscar",
+    icon: "search",
+    iconOutline: "search-outline",
+  },
+  {
+    name: "Chats",
+    label: "Chats",
+    icon: "chatbubbles",
+    iconOutline: "chatbubbles-outline",
+  },
+  {
+    name: "Orders",
+    label: "Pedidos",
+    icon: "bag-handle",
+    iconOutline: "bag-handle-outline",
+  },
+  {
+    name: "Profile",
+    label: "Perfil",
+    icon: "person",
+    iconOutline: "person-outline",
+  },
 ];
 
 // ── Placeholder ───────────────────────────────────────────
@@ -37,38 +67,71 @@ function PlaceholderScreen({ route }) {
 
 // ── Tab item ──────────────────────────────────────────────
 function IslandTab({ tab, isFocused, onPress }) {
-  const scale      = useRef(new Animated.Value(1)).current;
-  const bgOpacity  = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const bgOpacity = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
   const labelWidth = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
   const labelAlpha = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
 
   useEffect(() => {
     // Bounce
     Animated.sequence([
-      Animated.timing(scale, { toValue: 0.82, duration: 70, useNativeDriver: true }),
-      Animated.spring(scale, { toValue: 1, friction: 4, tension: 220, useNativeDriver: true }),
+      Animated.timing(scale, {
+        toValue: 0.82,
+        duration: 70,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 4,
+        tension: 220,
+        useNativeDriver: true,
+      }),
     ]).start();
 
     Animated.parallel([
-      Animated.timing(bgOpacity,  { toValue: isFocused ? 1 : 0, duration: 230, useNativeDriver: false }),
-      Animated.timing(labelWidth, { toValue: isFocused ? 1 : 0, duration: 230, useNativeDriver: false }),
-      Animated.timing(labelAlpha, { toValue: isFocused ? 1 : 0, duration: 180, useNativeDriver: false }),
+      Animated.timing(bgOpacity, {
+        toValue: isFocused ? 1 : 0,
+        duration: 230,
+        useNativeDriver: false,
+      }),
+      Animated.timing(labelWidth, {
+        toValue: isFocused ? 1 : 0,
+        duration: 230,
+        useNativeDriver: false,
+      }),
+      Animated.timing(labelAlpha, {
+        toValue: isFocused ? 1 : 0,
+        duration: 180,
+        useNativeDriver: false,
+      }),
     ]).start();
   }, [isFocused]);
 
   const pillBg = bgOpacity.interpolate({
-    inputRange: [0, 1], outputRange: ['#0D9AA300', '#0D9AA324'],
+    inputRange: [0, 1],
+    outputRange: ["#0D9AA300", "#0D9AA324"],
   });
   const pillBorder = bgOpacity.interpolate({
-    inputRange: [0, 1], outputRange: ['#24242400', '#0D9AA350'],
+    inputRange: [0, 1],
+    outputRange: ["#24242400", "#0D9AA350"],
   });
   const maxW = labelWidth.interpolate({
-    inputRange: [0, 1], outputRange: [0, 58],
+    inputRange: [0, 1],
+    outputRange: [0, 58],
   });
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.75} style={styles.tabTouch}>
-      <Animated.View style={[styles.tabPill, { backgroundColor: pillBg, borderColor: pillBorder }]}>
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.75}
+      style={styles.tabTouch}
+    >
+      <Animated.View
+        style={[
+          styles.tabPill,
+          { backgroundColor: pillBg, borderColor: pillBorder },
+        ]}
+      >
         <Animated.View style={{ transform: [{ scale }] }}>
           <Ionicons
             name={isFocused ? tab.icon : tab.iconOutline}
@@ -76,9 +139,13 @@ function IslandTab({ tab, isFocused, onPress }) {
             color={isFocused ? C.teal : C.inactive}
           />
         </Animated.View>
-        <Animated.View style={{ maxWidth: maxW, overflow: 'hidden' }}>
-          <Animated.Text style={[styles.tabLabel, { opacity: labelAlpha }]} numberOfLines={1}>
-            {'  '}{tab.label}
+        <Animated.View style={{ maxWidth: maxW, overflow: "hidden" }}>
+          <Animated.Text
+            style={[styles.tabLabel, { opacity: labelAlpha }]}
+            numberOfLines={1}
+          >
+            {"  "}
+            {tab.label}
           </Animated.Text>
         </Animated.View>
       </Animated.View>
@@ -96,10 +163,22 @@ function FloatingIsland({ state, navigation }) {
           if (!tab) return null;
           const isFocused = state.index === index;
           const onPress = () => {
-            const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented)
+              navigation.navigate(route.name);
           };
-          return <IslandTab key={route.key} tab={tab} isFocused={isFocused} onPress={onPress} />;
+          return (
+            <IslandTab
+              key={route.key}
+              tab={tab}
+              isFocused={isFocused}
+              onPress={onPress}
+            />
+          );
         })}
       </View>
     </View>
@@ -113,11 +192,16 @@ export default function MainNavigator() {
       tabBar={(props) => <FloatingIsland {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Home"    component={HomeScreen} />
-      <Tab.Screen name="Search"  component={SearchScreen} />
-      <Tab.Screen name="Chats"   component={PlaceholderScreen} />
-      <Tab.Screen name="Orders"  component={PlaceholderScreen} />
-      <Tab.Screen name="Profile" component={PlaceholderScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Chats" component={PlaceholderScreen} />
+      <Tab.Screen name="Orders" component={OrdersScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen
+        name="Categories"
+        component={CategoriesScreen}
+        options={{ tabBarButton: () => null }}
+      />
     </Tab.Navigator>
   );
 }
@@ -125,16 +209,16 @@ export default function MainNavigator() {
 // ── Estilos ───────────────────────────────────────────────
 const styles = StyleSheet.create({
   islandOuter: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 34 : 20,
+    position: "absolute",
+    bottom: Platform.OS === "ios" ? 34 : 20,
     left: 0,
     right: 0,
-    alignItems: 'center',
-    pointerEvents: 'box-none',
+    alignItems: "center",
+    pointerEvents: "box-none",
   },
   islandContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: C.island,
     borderRadius: 40,
     borderWidth: 1,
@@ -149,13 +233,13 @@ const styles = StyleSheet.create({
     elevation: 24,
   },
   tabTouch: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   tabPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 9,
     paddingHorizontal: 14,
     borderRadius: 30,
@@ -165,19 +249,19 @@ const styles = StyleSheet.create({
   tabLabel: {
     color: C.teal,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0.2,
   },
   placeholder: {
     flex: 1,
     backgroundColor: C.bg,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 12,
   },
   placeholderTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: "700",
     color: C.white,
   },
   placeholderSub: {
